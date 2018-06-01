@@ -79,14 +79,22 @@ def atualizaFipe():
     for car1 in carrosList:
         i += 1
         print(i)
-        for ID in car1['objID'].listValues:
-            ID = tknzr.tokenize(str(ID))
-            marcaID = ID[0]
-            fipeID = ID[1]
-            year = str(car1["ano"]) + "-1"
-            time.sleep(0.5) #servidor da api tem limite de requisicoes por minuto
-            browser.get("http://fipeapi.appspot.com/api/1/carros/veiculo/" + marcaID + "/" + fipeID + "/" + year + ".json")
-            elem = soup(browser.page_source, "html5lib").find("body").find("h1")
+        for j in range(1, 4, 1):
+            for ID in car1['objID'].listValues:
+                ID = tknzr.tokenize(str(ID))
+                marcaID = ID[0]
+                fipeID = ID[1]
+                print("\t" + fipeID)
+                year = str(car1["ano"]) + "-" + str(j)
+                print("\t" + year)
+                time.sleep(0.5)  # servidor da api tem limite de requisicoes por minuto
+                browser.get(
+                    "http://fipeapi.appspot.com/api/1/carros/veiculo/" + marcaID + "/" + fipeID + "/" + year + ".json")
+                elem = soup(browser.page_source, "html5lib").find("body").find("h1")
+                if elem is not None and elem.text == '500 Internal Server Error':
+                    continue
+                else:
+                    break
             if elem is not None and elem.text == '500 Internal Server Error':
                 continue
             else:
@@ -94,7 +102,7 @@ def atualizaFipe():
                 carroFipeInfo = json.loads(carroFipeInfo)
                 preco = tknzr.tokenize(carroFipeInfo["preco"])
                 preco = preco[1]
-                preco = preco[:len(preco)-3].replace(".", "")
+                preco = preco[:len(preco) - 3].replace(".", "")
                 print(car1["chave"])
                 fw.write(car1["chave"] + "," + preco + "\n")
                 break
